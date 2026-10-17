@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<meta charset="utf-8">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: light-dark(#f2f2f7, #000);
+    --card: light-dark(#fff, #1c1c1e);
+    --text: light-dark(#000, #fff);
+    --separator: light-dark(rgb(60 60 67 / 0.18), rgb(84 84 88 / 0.5));
+    --glass: light-dark(rgb(242 242 247 / 0.72), rgb(0 0 0 / 0.6));
+    --glass-edge: light-dark(rgb(255 255 255 / 0.6), rgb(255 255 255 / 0.12));
+    --track-off: light-dark(#e9e9eb, #39393d);
+    --accent: light-dark(#34c759, #30d158);
+    --chip: light-dark(rgb(0 0 0 / 0.06), rgb(255 255 255 / 0.1));
+    --secondary: light-dark(rgb(60 60 67 / 0.6), rgb(235 235 245 / 0.6));
+    /* Critically damped spring (damping 1.0), sampled. Duration = settle time for the chosen response. */
+    --spring: linear(0, 0.114 6.2%, 0.321 12.5%, 0.516 18.8%, 0.671 25%, 0.783 31.2%, 0.86 37.5%, 0.911 43.8%, 0.944 50%, 0.966 56.2%, 0.979 62.5%, 0.987 68.8%, 0.992 75%, 0.995 81.2%, 0.997 87.5%, 0.998 93.8%, 1);
+    --press: 0.22s;  /* response 0.15 */
+    --move: 0.51s;   /* response 0.35 */
+  }
+  body { font: 0.875rem/1.4 system-ui, sans-serif; width: 16rem; margin: 0; background: var(--bg); color: var(--text); }
+
+  :root.light { color-scheme: light; }
+  :root.dark { color-scheme: dark; }
+  /* Ease the theme switch instead of an abrupt brightness jump; .ready is set after load, so opening doesn't fade. */
+  .ready body, .ready header, .ready .card { transition: background-color var(--move) var(--spring), color var(--move) var(--spring); }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    position: sticky; top: 0; z-index: 1;
+    padding: 0.75rem 1rem;
+    background: var(--glass);
+    backdrop-filter: blur(20px) saturate(180%);
+    border-bottom: 1px solid var(--glass-edge);
+  }
+  h1 { margin: 0; font-size: 1.25rem; line-height: 1.2; letter-spacing: -0.02em; font-weight: 700; }
+
+  .card { margin: 0.75rem; background: var(--card); border-radius: 0.75rem; overflow: hidden; }
+  .row {
+    display: flex; align-items: center; justify-content: space-between; gap: 0.75rem;
+    padding: 0.625rem 0.875rem; min-height: 1.5rem; cursor: pointer;
+    transition: transform var(--press) var(--spring);
+  }
+  .row + .row { border-top: 1px solid var(--separator); }
+  /* macOS-style pop-up button: plain value + round chip with up/down chevron. */
+  .popup { position: relative; display: inline-flex; }
+  select {
+    appearance: none; font: inherit; color: inherit; cursor: pointer;
+    background: none; border: 0; border-radius: 0.375rem; margin: 0;
+    padding: 0.125rem 1.875rem 0.125rem 0.25rem; text-align: right;
+  }
+  .popup::before, .popup::after { content: ""; position: absolute; top: 50%; pointer-events: none; }
+  .popup::before { right: 0; width: 1.375rem; height: 1.375rem; margin-top: -0.6875rem; border-radius: 50%; background: var(--chip); }
+  .popup::after { right: 0.40625rem; width: 0.5625rem; height: 0.75rem; margin-top: -0.375rem; background: var(--secondary); mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 14'%3E%3Cpath d='M2 5l3-3 3 3M2 9l3 3 3-3' fill='none' stroke='black' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat; }
+
+  /* Press feedback on pointer-down. */
+  .row:active { transform: scale(0.97); }
+
+  input[type=checkbox] {
+    appearance: none; margin: 0; flex: none; cursor: pointer;
+    width: 2.5rem; height: 1.5rem; border-radius: 1rem; position: relative;
+    background: var(--track-off);
+  }
+  .ready input[type=checkbox] {
+    transition: background-color var(--move) var(--spring);
+  }
+  input[type=checkbox]::before {
+    content: ""; position: absolute; top: 0.125rem; left: 0.125rem;
+    width: 1.25rem; height: 1.25rem; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 3px rgb(0 0 0 / 0.25);
+  }
+  .ready input[type=checkbox]::before {
+    transition: transform var(--move) var(--spring);
+  }
+  input[type=checkbox]:checked { background: var(--accent); }
+  input[type=checkbox]:checked::before { transform: translateX(1rem); }
+  input[type=checkbox]:focus-visible, select:focus-visible { outline: 2px solid AccentColor; outline-offset: 2px; }
+
+  @media (prefers-reduced-motion: reduce) {
+    .row, .ready input[type=checkbox]::before { transition: none; }
+    .row:active { transform: none; opacity: 0.6; }
+    .ready input[type=checkbox] { transition: background-color 0.15s linear; }
+  }
+  @media (prefers-reduced-transparency: reduce) {
+    header { background: var(--bg); backdrop-filter: none; border-bottom-color: var(--separator); }
+  }
+  @media (prefers-contrast: more) {
+    :root { --separator: light-dark(#000, #fff); --secondary: var(--text); }
+    header { background: var(--bg); backdrop-filter: none; border-bottom: 1px solid var(--separator); }
+    .card, input[type=checkbox], .popup::before { outline: 1px solid var(--separator); }
+  }
+</style>
+<header><h1>Auto-Youtube</h1><input type="checkbox" id="dark" aria-label="Dark mode" title="Dark mode"></header>
+<div class="card">
+  <label class="row">Quality
+    <span class="popup"><select id="quality">
+      <option value="default">Auto</option>
+      <option value="tiny">144p</option>
+      <option value="small">240p</option>
+      <option value="medium">360p</option>
+      <option value="large">480p</option>
+      <option value="hd720">720p</option>
+      <option value="hd1080" selected>1080p</option>
+      <option value="hd1440">1440p</option>
+      <option value="hd2160">4K</option>
+      <option value="hd2880">5K</option>
+      <option value="highres">8K</option>
+    </select></span>
+  </label>
+  <label class="row">Autopause new videos <input type="checkbox" id="autopause"></label>
+</div>
+<script src="popup.js"></script>
