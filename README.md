@@ -22,20 +22,6 @@ After pulling changes, click **reload ↻** on the extension's card in `chrome:/
 
 Click the toolbar icon and set **Quality** and **Autopause new videos**. Changes save instantly and apply to open YouTube tabs right away; no reload needed. The default is 1080p with autopause off.
 
-## How it works
-
-YouTube's player API is only reachable from the page itself, while extension storage is only reachable from an isolated content script, so the work is split:
-
-| File | Role |
-| --- | --- |
-| `manifest.json` | Manifest V3; injects both scripts on `youtube.com` at `document_start`, in all frames. |
-| `bridge.js` | Isolated world. Reads settings from `chrome.storage.local` and sends them to the page as an `autoyt-settings` DOM event, again whenever they change. |
-| `main.js` | Page world. On each video's `loadstart` and `playing`, picks the quality from `getAvailableQualityLevels()` and calls `setPlaybackQualityRange()`. Handles autopause. |
-| `popup.html` / `popup.js` | The settings popup. The theme choice lives in the popup's `localStorage`. |
-| `icons/` | Toolbar and store icons (16–128 px), generated from `youtube-logo.png`. |
-
-The only permission is `storage`. The extension sends nothing over the network.
-
 ## Notes
 
 - It relies on YouTube's internal player methods. If YouTube renames them, quality selection stops working (playback is unaffected) until `main.js` is updated.
